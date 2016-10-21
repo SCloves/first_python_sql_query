@@ -1,16 +1,31 @@
 import MySQLdb
+import pandas as pd
+from date import *
 
-# Open database connection
-con = MySQLdb.connect(host='localhost', user='root', passwd='estatistica',db='Sakila_pt')
+def main():
+    db = MySQLdb.Connection(host='localhost', user='root', passwd='estatistica',db='Sakila_pt')
+    query = ("select primeiro_nome, valor from cliente \
+    inner join pagamento \
+    on cliente.cliente_id = pagamento.cliente_id \
+    where valor > 5 \
+    order by valor desc")
+    cursor = db.cursor()
 
-# prepare a cursor object using cursor() method
-c = con.cursor()
+    cursor.execute(query, args = None)
+    rows = cursor.fetchall()
+    lrows = []
+    for row in rows:
+        lrows.append(list(row))
 
-# execute SQL query using execute() method.
-c.execute("use Sakila_pt")
-c.execute("select primeiro_nome, valor from cliente \
-inner join pagamento \
-on cliente.cliente_id = pagamento.cliente_id \
-where valor > 5 \
-order by valor desc")
-resultado = c.fetchall()
+    #colnames = tuple([desc[0] for desc in cursor.description])
+    colnames = []
+    for desc in cursor.description:
+        colnames.append(desc[0])
+    tuple(colnames)
+
+    df = pd.DataFrame(lrows, columns = colnames)
+
+    df.to_csv("data_frame", sep='\t', encoding='utf-8')
+if __name__ == "__main__":
+    main_date()
+    main()
